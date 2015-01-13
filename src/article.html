@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+ <head>
+ 	<title>我的博客-文章详情</title>
+ 	<meta charset="utf-8"/>
+ 	<style type="text/css">
+		*{margin:0px;padding:0px;}
+		.content{width:700px;height:650px;margin:0 auto;background:#F0F0F0;}
+		h1{text-align:center;height:70px;line-height:70px;}	
+		.article_list{list-style-type:none;}
+		a{text-decoration:none;}
+		.article_item{width:90%;height:40px;line-height:40px;margin:0 auto;border-bottom:1px solid #D6D6D6;}
+</style>
+ </head>
+ <body>
+	<div class="content">
+		<h1>文章详情</h1>
+		<hr/>
+		<ul class="article_list">
+		文章id:{{.Id}}
+		<br/><br/>
+		文章标题:{{.Title}}
+		</ul>
+	</div>
+ </body>
+</html>

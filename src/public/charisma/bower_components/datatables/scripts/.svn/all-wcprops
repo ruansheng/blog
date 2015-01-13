@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/emord/!svn/ver/1741/webv2/Public/Admin/charisma/bower_components/datatables/scripts
+END
+jshint.config
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/emord/!svn/ver/1741/webv2/Public/Admin/charisma/bower_components/datatables/scripts/jshint.config
+END
+make.sh
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/emord/!svn/ver/1741/webv2/Public/Admin/charisma/bower_components/datatables/scripts/make.sh
+END
+unit_tests.sh
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/emord/!svn/ver/1741/webv2/Public/Admin/charisma/bower_components/datatables/scripts/unit_tests.sh
+END
