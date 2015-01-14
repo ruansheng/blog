@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+//	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -16,7 +16,7 @@ var globalSessions *session.Manager
 var sessionHandler *session.MemSessionStore
 
 func init() {
-    globalSessions, _ = session.NewManager("memory", `{"cookieName":"gosessionid","gclifetime":3600}`)
+    globalSessions, _ = session.NewManager("file",`{"cookieName":"gosessionid","gclifetime":3600,"ProviderConfig":"./tmp"}`)
     go globalSessions.GC()
 }
 
@@ -147,19 +147,26 @@ func article(w http.ResponseWriter,r *http.Request){
 * 后台登录
 */
 func login(w http.ResponseWriter,r *http.Request){
+	data:=map[string]string{"msg":""}
 	t,_ :=template.ParseFiles("login.html")
-	t.Execute(w,nil)
+	t.Execute(w,data)
 }
 
 /**
 * 登录处理
 */
 func doLogin(w http.ResponseWriter,r *http.Request){
-	fmt.Println(r.Method)
+	r.ParseForm()
+	code:=r.Form["code"][0]
 	imagecode:=getSession(w,r,"imagecode")
-	fmt.Println(imagecode)
-	t,_ :=template.ParseFiles("admin/admin.html")
-	t.Execute(w,nil)
+	if code==imagecode {
+		t,_ :=template.ParseFiles("admin/admin.html")
+		t.Execute(w,nil)
+	}else{
+		data:=map[string]string{"msg":"验证码错误"}
+		t,_ :=template.ParseFiles("login.html")
+		t.Execute(w,data)
+	}
 }
 
 /**
@@ -196,7 +203,6 @@ func getSession(w http.ResponseWriter,r *http.Request,key string) (interface{}){
 	sess,_:= globalSessions.SessionStart(w, r)
     defer sess.SessionRelease(w)
     value := sess.Get(key)
-    fmt.Println(value)
     return value
 }
 

@@ -51,11 +51,11 @@
 
     <div class="row">
         <div class="well col-md-5 center login-box">
-            <!-- 
+            {{if .msg}}
             <div class="alert alert-info">
-                Please login with your Username and Password.
+                {{.msg}}
             </div>
-             -->
+            {{end}}
             <form class="form-horizontal" action="/doLogin" method="post">
                 <fieldset>
                     <div class="input-group input-group-lg">
