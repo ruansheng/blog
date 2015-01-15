@@ -18,7 +18,7 @@
 		<hr/>
 		<ul class="article_list">
 		{{range $k, $v := .}}
-			<li class="article_item"><a href="/article?article_id={{$v.Id}}">{{$v.Title}}</a></li>
+			<li class="article_item"><a href="/article?article_id={{$v.article_id}}">{{$v.title}}</a></li>
 		{{end}}
 		</ul>
 	</div>

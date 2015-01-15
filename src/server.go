@@ -1,7 +1,7 @@
 package main
 
 import (
-//	"fmt"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -10,14 +10,43 @@ import (
     "./session"
     ."./ImageCode"
     "strconv"
+    "crypto/sha1"
+    "io"
 )
 
+/**
+* 管理员id session key
+*/
+const manageIdKey="manage_id"
+
+/**
+* 图片验证码 session key
+*/
+const imageCodeKey="image_code"
+
+/**
+* session 资源句柄
+*/
 var globalSessions *session.Manager
 var sessionHandler *session.MemSessionStore
 
+/**
+* 初始化函数
+*/
 func init() {
     globalSessions, _ = session.NewManager("file",`{"cookieName":"gosessionid","gclifetime":3600,"ProviderConfig":"./tmp"}`)
     go globalSessions.GC()
+}
+
+/**
+* 文章 数据结构
+*/
+type Item struct{
+	article_id string
+	title string
+	content string
+	create_time string
+	show_num string
 }
 
 /**
@@ -86,61 +115,74 @@ func (mysqlClass * Mysql)closeDb(){
 	mysqlClass.conn.Close()
 }
 
-type Item struct{
-	Id int
-	Title string
-//	Person map[string]interface{}
-}
-
 /**
 * 首页
 */
 func index(w http.ResponseWriter,r *http.Request){
+	r.ParseForm()
+	page:=r.Form["page"][0]
+	if page=="" {
+		page="1"
+	}
+	
+	intPage,_:=strconv.Atoi(page)
+	limit:=strconv.Itoa(intPage*20)+",20"
+	
     conn:=new(Mysql)
-	var sql string="select goods_id,activity_id,goods_name from qg_goods limit 999"
-	rows:=conn.connect("qgzs").selectSql(sql)
-	var goods_id int 
-    var activity_id int
-    var goods_name string
+	var sql string="select article_id,title,content,create_time,show_num from article limit "+limit
+	fmt.Println(sql)
+	fmt.Println(conn)
+	
+	/*
+	rows:=conn.connect("blog").selectSql(sql)
+	var article_id string 
+    var title string
+    var content string
+    var create_time string
+    var show_num string
     
-    var list [1000]Item
+    var list [20]Item
     var i int=0
 	for rows.Next() { 
-        rerr := rows.Scan(&goods_id, &activity_id,&goods_name)
+        rerr := rows.Scan(&article_id, &title,&content,&create_time,&show_num)
         if rerr == nil {
         		var item Item
-        		item.Id=goods_id
-        		item.Title=goods_name
+        		item.article_id=article_id
+        		item.title=title
+        		item.content=content
+        		item.create_time=create_time
+        		item.show_num=show_num
            	list[i]=item
            	i++
         }
     }
 	t,_ :=template.ParseFiles("index.html")
 	t.Execute(w,list)
+	*/
 }
 
 /**
 * 文章内容页
 */
 func article(w http.ResponseWriter,r *http.Request){
-	r.ParseForm()
-	id:=r.Form["article_id"][0]
-	conn:=new(Mysql)
-	var sql string="select goods_id,activity_id,goods_name from qg_goods where goods_id="+id+" limit 1"
-	rows:=conn.connect("qgzs").selectSql(sql)
-	var goods_id int 
-    var activity_id int
-    var goods_name string
-    articleInfo:=make(map[string]interface{})
-    for rows.Next() { 
-        rerr := rows.Scan(&goods_id, &activity_id,&goods_name)
-        if rerr == nil {
-			articleInfo["Id"]=goods_id
-			articleInfo["Title"]=goods_name
-        }
-    }
-	t,_ :=template.ParseFiles("article.html")
-	t.Execute(w,articleInfo)
+//	r.ParseForm()
+//	id:=r.Form["article_id"][0]
+//	conn:=new(Mysql)
+//	var sql string="select goods_id,activity_id,goods_name from qg_goods where goods_id="+id+" limit 1"
+//	rows:=conn.connect("qgzs").selectSql(sql)
+//	var goods_id int 
+//    var activity_id int
+//    var goods_name string
+//    articleInfo:=make(map[string]interface{})
+//    for rows.Next() { 
+//        rerr := rows.Scan(&goods_id, &activity_id,&goods_name)
+//        if rerr == nil {
+//			articleInfo["Id"]=goods_id
+//			articleInfo["Title"]=goods_name
+//        }
+//    }
+//	t,_ :=template.ParseFiles("article.html")
+//	t.Execute(w,articleInfo)
 }
 
 /**
@@ -157,11 +199,30 @@ func login(w http.ResponseWriter,r *http.Request){
 */
 func doLogin(w http.ResponseWriter,r *http.Request){
 	r.ParseForm()
+	manageName:=r.Form["manage_name"][0]
+	password:=r.Form["password"][0]
 	code:=r.Form["code"][0]
-	imagecode:=getSession(w,r,"imagecode")
+	
+	if manageName==""||password==""||code==""{
+		data:=map[string]string{"msg":"登录信息不能为空"}
+		t,_ :=template.ParseFiles("login.html")
+		t.Execute(w,data)
+	}
+	
+	//判断验证码是否正确
+	imagecode:=getSession(w,r,imageCodeKey)
 	if code==imagecode {
-		t,_ :=template.ParseFiles("admin/admin.html")
-		t.Execute(w,nil)
+		//判断账号和密码是否正确
+		userInfo,err:=checkLogin(manageName,getSha1(password))
+		if err!=nil {
+			data:=map[string]interface{}{"msg":err}
+			t,_ :=template.ParseFiles("login.html")
+			t.Execute(w,data)
+		}else{
+			setSession(w,r,manageIdKey,userInfo["manage_id"])
+			t,_ :=template.ParseFiles("admin/admin.html")
+			t.Execute(w,nil)
+		}
 	}else{
 		data:=map[string]string{"msg":"验证码错误"}
 		t,_ :=template.ParseFiles("login.html")
@@ -183,7 +244,7 @@ func getImageCode(w http.ResponseWriter,r *http.Request){
 	}
 	w.Header().Set("Content-Type", "image/png")
 	NewImage(d, 100, 40).WriteTo(w)
-	setSession(w,r,"imagecode",ss)
+	setSession(w,r,imageCodeKey,ss)
 }
 
 /**
@@ -205,6 +266,43 @@ func getSession(w http.ResponseWriter,r *http.Request,key string) (interface{}){
     value := sess.Get(key)
     return value
 }
+
+/**
+* 校验登录
+*/
+func checkLogin(manageName string,password string)(map[string]string,interface{}){
+	conn:=new(Mysql)
+	var sql string="select manage_id,manage_name from manage where manage_name='"+manageName+"' and password='"+password+"' limit 1"
+	rows:=conn.connect("blog").selectSql(sql)
+	var manage_id string 
+    var manage_name string
+    userInfo:=make(map[string]string)
+    for rows.Next() { 
+        rerr := rows.Scan(&manage_id, &manage_name)
+        if rerr == nil {
+			userInfo["manage_id"]=manage_id
+			userInfo["manage_name"]=manage_name
+        }
+    }
+    var err interface{}
+    if userInfo!=nil{
+    		err=nil
+    }else{
+    		err="账号或密码不正确"
+    	}
+    return userInfo,err
+}
+
+/**
+* 对字符串进行SHA1哈希
+*/
+func getSha1(str string) string {
+	t := sha1.New();
+	io.WriteString(t,str);
+	return fmt.Sprintf("%x",t.Sum(nil));
+}
+
+//-----------------------------------------------
 
 /**
 * 入口函数
