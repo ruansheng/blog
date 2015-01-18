@@ -17,8 +17,10 @@
 		<h1>阮胜的博客</h1>
 		<hr/>
 		<ul class="article_list">
-		{{range $k, $v := .}}
-			<li class="article_item"><a href="/article?article_id={{$v.article_id}}">{{$v.title}}</a></li>
+		{{range $k,$v:=.}}
+			{{if $v.title}}
+				<li class="article_item"><a href="/article?article_id={{$v.article_id}}">{{$v.title}}&nbsp;&nbsp;&nbsp;&nbsp;{{$v.create_time}}&nbsp;&nbsp;&nbsp;{{$v.show_num}}</a></li>
+			{{end}}
 		{{end}}
 		</ul>
 	</div>

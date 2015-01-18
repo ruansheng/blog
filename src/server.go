@@ -12,6 +12,7 @@ import (
     "strconv"
     "crypto/sha1"
     "io"
+    "encoding/json"
 )
 
 /**
@@ -120,20 +121,20 @@ func (mysqlClass * Mysql)closeDb(){
 */
 func index(w http.ResponseWriter,r *http.Request){
 	r.ParseForm()
-	page:=r.Form["page"][0]
-	if page=="" {
+	urlRow,err:=r.Form["page"]
+	var page string
+	if err!=true {
 		page="1"
+	}else{
+		page=urlRow[0]
 	}
 	
 	intPage,_:=strconv.Atoi(page)
-	limit:=strconv.Itoa(intPage*20)+",20"
+	limit:=strconv.Itoa((intPage-1)*20)+",20"
 	
-    conn:=new(Mysql)
 	var sql string="select article_id,title,content,create_time,show_num from article limit "+limit
-	fmt.Println(sql)
-	fmt.Println(conn)
-	
-	/*
+    conn:=new(Mysql)
+	 
 	rows:=conn.connect("blog").selectSql(sql)
 	var article_id string 
     var title string
@@ -141,49 +142,96 @@ func index(w http.ResponseWriter,r *http.Request){
     var create_time string
     var show_num string
     
-    var list [20]Item
-    var i int=0
+    list:=make([]map[string]interface{},0,20)
 	for rows.Next() { 
         rerr := rows.Scan(&article_id, &title,&content,&create_time,&show_num)
         if rerr == nil {
-        		var item Item
-        		item.article_id=article_id
-        		item.title=title
-        		item.content=content
-        		item.create_time=create_time
-        		item.show_num=show_num
-           	list[i]=item
-           	i++
+        		item:=make(map[string]interface{})
+        		item["article_id"]=article_id
+        		item["title"]=title
+        		item["content"]=content
+        		item["create_time"]=create_time
+        		item["show_num"]=show_num
+           	list=append(list,item)
         }
     }
 	t,_ :=template.ParseFiles("index.html")
 	t.Execute(w,list)
-	*/
 }
 
 /**
 * 文章内容页
 */
 func article(w http.ResponseWriter,r *http.Request){
-//	r.ParseForm()
-//	id:=r.Form["article_id"][0]
-//	conn:=new(Mysql)
-//	var sql string="select goods_id,activity_id,goods_name from qg_goods where goods_id="+id+" limit 1"
-//	rows:=conn.connect("qgzs").selectSql(sql)
-//	var goods_id int 
-//    var activity_id int
-//    var goods_name string
-//    articleInfo:=make(map[string]interface{})
-//    for rows.Next() { 
-//        rerr := rows.Scan(&goods_id, &activity_id,&goods_name)
-//        if rerr == nil {
-//			articleInfo["Id"]=goods_id
-//			articleInfo["Title"]=goods_name
-//        }
-//    }
-//	t,_ :=template.ParseFiles("article.html")
-//	t.Execute(w,articleInfo)
+	r.ParseForm()
+	id:=r.Form["article_id"][0]
+	conn:=new(Mysql)
+	var sql string="select article_id,title,content,create_time,show_num from article where article_id="+id+" limit 1"
+	rows:=conn.connect("blog").selectSql(sql)
+	var article_id string 
+    var title string
+    var content string
+    var create_time string
+    var show_num string
+    articleInfo:=make(map[string]interface{})
+    for rows.Next() { 
+        rerr := rows.Scan(&article_id, &title,&content,&create_time,&show_num)
+        if rerr == nil {
+			articleInfo["article_id"]=article_id
+        		articleInfo["title"]=title
+        		articleInfo["content"]=content
+        		articleInfo["create_time"]=create_time
+        		articleInfo["show_num"]=show_num
+        }
+    }
+	t,_ :=template.ParseFiles("article.html")
+	t.Execute(w,articleInfo)
 }
+
+/**
+*  文章列表 Api
+*/
+func articleListApi(w http.ResponseWriter,r *http.Request){
+	r.ParseForm()
+	urlRow,err:=r.Form["page"]
+	var page string
+	if err!=true {
+		page="1"
+	}else{
+		page=urlRow[0]
+	}
+	
+	intPage,_:=strconv.Atoi(page)
+	limit:=strconv.Itoa((intPage-1)*20)+",20"
+	
+	var sql string="select article_id,title,content,create_time,show_num from article limit "+limit
+    conn:=new(Mysql)
+	 
+	rows:=conn.connect("blog").selectSql(sql)
+	var article_id string 
+    var title string
+    var content string
+    var create_time string
+    var show_num string
+    
+    list:=make([]map[string]interface{},0,20)
+	for rows.Next() { 
+        rerr := rows.Scan(&article_id, &title,&content,&create_time,&show_num)
+        if rerr == nil {
+        		item:=make(map[string]interface{})
+        		item["article_id"]=article_id
+        		item["title"]=title
+        		item["content"]=content
+        		item["create_time"]=create_time
+        		item["show_num"]=show_num
+        		list=append(list,item)
+        }
+    }
+    
+    result,_:=json.Marshal(list)
+    w.Write(result)
+}
+
 
 /**
 * 后台登录
@@ -308,12 +356,19 @@ func getSha1(str string) string {
 * 入口函数
 */
 func main(){
+	/*Web*/
 	http.HandleFunc("/",index)
 	http.HandleFunc("/article",article)
+	
+	/*Admin*/
 	http.HandleFunc("/login",login)
 	http.HandleFunc("/image",getImageCode)
 	http.HandleFunc("/doLogin",doLogin)
 	
+	/*Api*/
+	http.HandleFunc("/articleListApi",articleListApi)
+	
+	/*static*/
 	http.Handle("/public/",http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	
 	err:=http.ListenAndServe(":9999",nil)
