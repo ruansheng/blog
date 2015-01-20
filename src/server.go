@@ -232,11 +232,23 @@ func articleListApi(w http.ResponseWriter,r *http.Request){
     w.Write(result)
 }
 
+/**
+* 权限校验 后台登录
+*/
+func checkManagerAuthority(w http.ResponseWriter,r *http.Request){
+	manageId:=getSession(w,r,manageIdKey)
+	if manageId!="" {
+		data:=map[string]string{"msg":""}
+		t,_ :=template.ParseFiles("admin/admin.html")
+		t.Execute(w,data)
+	}
+}
 
 /**
 * 后台登录
 */
 func login(w http.ResponseWriter,r *http.Request){
+	checkManagerAuthority(w,r)
 	data:=map[string]string{"msg":""}
 	t,_ :=template.ParseFiles("login.html")
 	t.Execute(w,data)
