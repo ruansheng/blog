@@ -13,6 +13,7 @@ import (
     "crypto/sha1"
     "io"
     "encoding/json"
+    "time"
 )
 
 /**
@@ -37,17 +38,6 @@ var sessionHandler *session.MemSessionStore
 func init() {
     globalSessions, _ = session.NewManager("file",`{"cookieName":"gosessionid","gclifetime":3600,"ProviderConfig":"./tmp"}`)
     go globalSessions.GC()
-}
-
-/**
-* 文章 数据结构
-*/
-type Item struct{
-	article_id string
-	title string
-	content string
-	create_time string
-	show_num string
 }
 
 /**
@@ -237,7 +227,7 @@ func articleListApi(w http.ResponseWriter,r *http.Request){
 */
 func checkManagerAuthority(w http.ResponseWriter,r *http.Request){
 	manageId:=getSession(w,r,manageIdKey)
-	if manageId!="" {
+	if manageId!=nil {
 		data:=map[string]string{"msg":""}
 		t,_ :=template.ParseFiles("admin/admin.html")
 		t.Execute(w,data)
@@ -280,14 +270,78 @@ func doLogin(w http.ResponseWriter,r *http.Request){
 			t.Execute(w,data)
 		}else{
 			setSession(w,r,manageIdKey,userInfo["manage_id"])
-			t,_ :=template.ParseFiles("admin/admin.html")
-			t.Execute(w,nil)
+			io.WriteString(w,"<script type='text/javascript'>location.href='/admin'</script>")
 		}
 	}else{
 		data:=map[string]string{"msg":"验证码错误"}
 		t,_ :=template.ParseFiles("login.html")
 		t.Execute(w,data)
 	}
+}
+
+/**
+* 主面板
+*/
+func admin(w http.ResponseWriter,r *http.Request){
+	checkManagerAuthority(w,r)
+	t,_ :=template.ParseFiles("admin/admin.html")
+	t.Execute(w,nil)
+}
+
+/**
+* 添加文章
+*/
+func addArticle(w http.ResponseWriter,r *http.Request){
+	checkManagerAuthority(w,r)
+	data:=map[string]string{"msg":""}
+	t,_ :=template.ParseFiles("admin/addArticle.html")
+	t.Execute(w,data)
+}
+
+/**
+* 执行插入文章
+*/
+func doAddArticle(w http.ResponseWriter,r *http.Request){
+	r.ParseForm()
+	articleTitleRow,err1:=r.Form["article_title"]
+	articleContentRow,err2:=r.Form["article_content"]
+	
+	if err1!=true || err2!=true {
+		data:=map[string]string{"msg":"文章信息不能为空"}
+		t,_ :=template.ParseFiles("admin/addArticle.html")
+		t.Execute(w,data)
+	}
+	
+	sql:="insert into article(title,content,create_time,update_time,delete_time,is_del,show_num)values(?,?,?,?,?,?,?)"
+	_this:=new(Mysql)
+	_thisClass:=_this.connect("blog")
+	stmt,err := _thisClass.conn.Prepare(sql)
+	if err!=nil {
+		data:=map[string]string{"msg":"prepare执行插入错误"}
+		t,_ :=template.ParseFiles("admin/addArticle.html")
+		t.Execute(w,data)
+	}
+	
+	articleTitle:=articleTitleRow[0]
+	articleContent:=articleContentRow[0]
+	time:=time.Now().Unix()
+	
+	res,err := stmt.Exec(articleTitle,articleContent,time,time,time,0,0)
+	if err!=nil {
+		data:=map[string]string{"msg":"stmt执行插入错误"}
+		t,_ :=template.ParseFiles("admin/addArticle.html")
+		t.Execute(w,data)
+	}
+	article_id, err := res.LastInsertId()
+	if err!=nil {
+		data:=map[string]string{"msg":"获取插入id错误"}
+		t,_ :=template.ParseFiles("admin/addArticle.html")
+		t.Execute(w,data)		
+	}
+	id:=strconv.Itoa(int(article_id))
+	data:=map[string]string{"msg":"插入成功"+id}
+	t,_ :=template.ParseFiles("admin/addArticle.html")
+	t.Execute(w,data)
 }
 
 /**
@@ -308,6 +362,14 @@ func getImageCode(w http.ResponseWriter,r *http.Request){
 }
 
 /**
+* 退出
+*/
+func logout(w http.ResponseWriter,r *http.Request){
+	delSession(w,r,manageIdKey)
+	io.WriteString(w,"<script type='text/javascript'>location.href='/login'</script>")
+}
+
+/**
 * set Session
 */
 func setSession(w http.ResponseWriter,r *http.Request,key string,value string) bool{
@@ -325,6 +387,16 @@ func getSession(w http.ResponseWriter,r *http.Request,key string) (interface{}){
     defer sess.SessionRelease(w)
     value := sess.Get(key)
     return value
+}
+
+/**
+* delete Session
+*/
+func delSession(w http.ResponseWriter,r *http.Request,key string) (interface{}){
+	sess,_:= globalSessions.SessionStart(w, r)
+    defer sess.SessionRelease(w)
+    err := sess.Delete(key)
+    return err
 }
 
 /**
@@ -376,6 +448,10 @@ func main(){
 	http.HandleFunc("/login",login)
 	http.HandleFunc("/image",getImageCode)
 	http.HandleFunc("/doLogin",doLogin)
+	http.HandleFunc("/admin",admin)
+	http.HandleFunc("/addArticle",addArticle)
+	http.HandleFunc("/doAddArticle",doAddArticle)
+	http.HandleFunc("/logout",logout)
 	
 	/*Api*/
 	http.HandleFunc("/articleListApi",articleListApi)

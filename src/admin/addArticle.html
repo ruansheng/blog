@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>博客管理系统</title>
+    <title>添加IQ等级</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Charisma, a fully featured, responsive, HTML5, Bootstrap admin template.">
     <meta name="author" content="Muhammad Usman">
 
-    <!-- The styles -->
-    <link id="bs-css" href="/public/charisma/css/bootstrap-cerulean.min.css" rel="stylesheet">
+	<!-- The styles -->
+	<link id="bs-css" href="/public/charisma/css/bootstrap-cerulean.min.css" rel="stylesheet">
     <link href="/public/charisma/css/charisma-app.css" rel="stylesheet">
     <link href='/public/charisma/bower_components/fullcalendar/dist/fullcalendar.css' rel='stylesheet'>
     <link href='/public/charisma/bower_components/fullcalendar/dist/fullcalendar.print.css' rel='stylesheet' media='print'>
@@ -100,7 +100,7 @@
     <div class="row">
         
         <!-- left menu starts -->
-         <div class="col-sm-2 col-lg-2">
+        <div class="col-sm-2 col-lg-2">
             <div class="sidebar-nav">
                 <div class="nav-canvas">
                     <div class="nav-sm nav nav-stacked">
@@ -135,7 +135,6 @@
                 </div>
             </div>
 </div>
-
         <!-- left menu ends -->
 
         <div id="content" class="col-lg-10 col-sm-10">
@@ -143,36 +142,56 @@
             <div>
     <ul class="breadcrumb">
         <li>
-            <a href="#">管理系统</a>
+            <a href="/index.php/Method/addMethod">IQ等级管理</a>
         </li>
         <li>
-            <a href="#">主面板</a>
+            <a href="/index.php/Method/addMethod">添加IQ等级</a>
         </li>
     </ul>
 </div>
 
 <div class="row">
     <div class="box col-md-12">
-        <div class="box-inner" style="height:350px;">
+        <div class="box-inner">
             <div class="box-header well">
-                <h2><i class="glyphicon glyphicon-home"></i> 主面板</h2>
+                <h2><i class="glyphicon glyphicon-folder-open"></i> 填写IQ等级</h2>
 
-                <div class="box-icon" >
+                <div class="box-icon">
                     <a href="#" class="btn btn-minimize btn-round btn-default"><i
                             class="glyphicon glyphicon-chevron-up"></i></a>
                 </div>
             </div>
-
+            <div class="box-content row">
+				<!-- 表单内容 -->
+				<div class="col-md-5 center login-box"><br/>
+				<form class="form-horizontal" action="/doAddArticle" method="post">
+	                <fieldset>
+	                    <div class="input-group input-group-lg">
+	                        <span class="input-group-addon"><i class="glyphicon red"></i></span>
+	                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="文章标题" name="article_title">
+	                    </div>
+	                    <div class="clearfix"></div><br>
+		                <div class="input-group input-group-lg">
+	                        <span class="input-group-addon"><i class="glyphicon red"></i></span>
+	                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="文章内容" name="article_content">
+	                    </div>
+	                    <div class="clearfix"></div><br>
+	                    <p class=" col-md-5">
+	                        <button type="submit" class="btn btn-primary" style="width:306px;">添加</button>
+	                    </p><br/><br/><br/><br/>
+	                </fieldset>
+	            </form>
+	            </div>
             </div>
         </div>
     </div>
 </div>
 
-</div><!--/#content.col-md-0-->
+</div><!--/row-->
+    <!-- content ends -->
 </div><!--/fluid-row-->
 
     <hr>
-
 <footer class="row">
         <p class="col-md-9 col-sm-9 col-xs-12 copyright">&copy; <a href="https://github.com/ruansheng" target="_blank">ruansheng
                 </a> 2010 - 2014</p>
@@ -181,10 +200,7 @@
                 href="https://github.com" target="_blank">ruansheng</a></p>
 </footer>
 
-</div><!--/.fluid-container-->
-
-<!-- external javascript -->
-
+</div>
 <script src="/public/charisma/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
 <!-- library for cookie management -->
