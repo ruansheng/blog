@@ -227,10 +227,8 @@ func articleListApi(w http.ResponseWriter,r *http.Request){
 */
 func checkManagerAuthority(w http.ResponseWriter,r *http.Request){
 	manageId:=getSession(w,r,manageIdKey)
-	if manageId!=nil {
-		data:=map[string]string{"msg":""}
-		t,_ :=template.ParseFiles("admin/admin.html")
-		t.Execute(w,data)
+	if manageId==nil {
+		io.WriteString(w,"<script type='text/javascript'>location.href='/login'</script>")
 	}
 }
 
@@ -238,7 +236,6 @@ func checkManagerAuthority(w http.ResponseWriter,r *http.Request){
 * 后台登录
 */
 func login(w http.ResponseWriter,r *http.Request){
-	checkManagerAuthority(w,r)
 	data:=map[string]string{"msg":""}
 	t,_ :=template.ParseFiles("login.html")
 	t.Execute(w,data)
