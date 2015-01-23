@@ -251,9 +251,7 @@ func doLogin(w http.ResponseWriter,r *http.Request){
 	code:=r.Form["code"][0]
 	
 	if manageName==""||password==""||code==""{
-		data:=map[string]string{"msg":"登录信息不能为空"}
-		t,_ :=template.ParseFiles("login.html")
-		t.Execute(w,data)
+		io.WriteString(w,"<script type='text/javascript'>location.href='/login'</script>")
 	}
 	
 	//判断验证码是否正确
@@ -262,17 +260,13 @@ func doLogin(w http.ResponseWriter,r *http.Request){
 		//判断账号和密码是否正确
 		userInfo,err:=checkLogin(manageName,getSha1(password))
 		if err!=nil {
-			data:=map[string]interface{}{"msg":err}
-			t,_ :=template.ParseFiles("login.html")
-			t.Execute(w,data)
+			io.WriteString(w,"<script type='text/javascript'>location.href='/login'</script>")
 		}else{
 			setSession(w,r,manageIdKey,userInfo["manage_id"])
 			io.WriteString(w,"<script type='text/javascript'>location.href='/admin'</script>")
 		}
 	}else{
-		data:=map[string]string{"msg":"验证码错误"}
-		t,_ :=template.ParseFiles("login.html")
-		t.Execute(w,data)
+		io.WriteString(w,"<script type='text/javascript'>location.href='/login'</script>")
 	}
 }
 
@@ -290,9 +284,38 @@ func admin(w http.ResponseWriter,r *http.Request){
 */
 func addArticle(w http.ResponseWriter,r *http.Request){
 	checkManagerAuthority(w,r)
-	data:=map[string]string{"msg":""}
-	t,_ :=template.ParseFiles("admin/addArticle.html")
-	t.Execute(w,data)
+	
+	r.ParseForm()
+	retRow,err:=r.Form["ret"]
+
+	if err == false {
+		data:=map[string]string{"msg":""}
+		t,_ :=template.ParseFiles("admin/addArticle.html")
+		t.Execute(w,data)
+	} else{
+		ret:=retRow[0]
+		if ret == "0" {
+			data:=map[string]string{"msg":"发布成功"}
+			t,_ :=template.ParseFiles("admin/addArticle.html")
+			t.Execute(w,data)
+		} else if ret == "1" {
+			data:=map[string]string{"msg":"文章信息不能为空"}
+			t,_ :=template.ParseFiles("admin/addArticle.html")
+			t.Execute(w,data)
+		} else if ret == "2" {
+			data:=map[string]string{"msg":"prepare执行插入错误"}
+			t,_ :=template.ParseFiles("admin/addArticle.html")
+			t.Execute(w,data)
+		} else if ret == "3" {
+			data:=map[string]string{"msg":"stmt执行插入错误"}
+			t,_ :=template.ParseFiles("admin/addArticle.html")
+			t.Execute(w,data)
+		} else if ret == "4" {
+			data:=map[string]string{"msg":"获取插入id错误"}
+			t,_ :=template.ParseFiles("admin/addArticle.html")
+			t.Execute(w,data)
+		}
+	}
 }
 
 /**
@@ -304,9 +327,15 @@ func doAddArticle(w http.ResponseWriter,r *http.Request){
 	articleContentRow,err2:=r.Form["article_content"]
 	
 	if err1!=true || err2!=true {
-		data:=map[string]string{"msg":"文章信息不能为空"}
-		t,_ :=template.ParseFiles("admin/addArticle.html")
-		t.Execute(w,data)
+		io.WriteString(w,"<script type='text/javascript'>location.href='/addArticle?ret=1'</script>")
+	}
+	
+	articleTitle:=articleTitleRow[0]
+	articleContent:=articleContentRow[0]
+	time:=time.Now().Unix()
+	
+	if articleTitle=="" || articleContent=="" {
+		io.WriteString(w,"<script type='text/javascript'>location.href='/addArticle?ret=1'</script>")
 	}
 	
 	sql:="insert into article(title,content,create_time,update_time,delete_time,is_del,show_num)values(?,?,?,?,?,?,?)"
@@ -314,31 +343,19 @@ func doAddArticle(w http.ResponseWriter,r *http.Request){
 	_thisClass:=_this.connect("blog")
 	stmt,err := _thisClass.conn.Prepare(sql)
 	if err!=nil {
-		data:=map[string]string{"msg":"prepare执行插入错误"}
-		t,_ :=template.ParseFiles("admin/addArticle.html")
-		t.Execute(w,data)
+		io.WriteString(w,"<script type='text/javascript'>location.href='/addArticle?ret=2'</script>")
 	}
-	
-	articleTitle:=articleTitleRow[0]
-	articleContent:=articleContentRow[0]
-	time:=time.Now().Unix()
 	
 	res,err := stmt.Exec(articleTitle,articleContent,time,time,time,0,0)
 	if err!=nil {
-		data:=map[string]string{"msg":"stmt执行插入错误"}
-		t,_ :=template.ParseFiles("admin/addArticle.html")
-		t.Execute(w,data)
+		io.WriteString(w,"<script type='text/javascript'>location.href='/addArticle?ret=3'</script>")
 	}
 	article_id, err := res.LastInsertId()
 	if err!=nil {
-		data:=map[string]string{"msg":"获取插入id错误"}
-		t,_ :=template.ParseFiles("admin/addArticle.html")
-		t.Execute(w,data)		
+		io.WriteString(w,"<script type='text/javascript'>location.href='/addArticle?ret=4'</script>")	
 	}
-	id:=strconv.Itoa(int(article_id))
-	data:=map[string]string{"msg":"插入成功"+id}
-	t,_ :=template.ParseFiles("admin/addArticle.html")
-	t.Execute(w,data)
+	strconv.Itoa(int(article_id))
+	io.WriteString(w,"<script type='text/javascript'>location.href='/addArticle?ret=0'</script>")
 }
 
 /**

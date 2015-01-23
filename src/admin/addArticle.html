@@ -175,24 +175,29 @@
                 </div>
             </div>
             <div class="box-content row">
+	            {{if .msg}}
+	            <div class="alert alert-info" style="width:780px;margin-left:47px;margin-top:20px;">
+	                {{.msg}}
+	            </div>
+	            {{end}}
 				<!-- 表单内容 -->
 				<div class="col-md-5 login-box"><br/>
 				<form class="form-horizontal" action="/doAddArticle" method="post">
 	                <fieldset>
-	                    <div class="input-group input-group-lg">
+	                    <div class="input-group input-group-lg" style="margin-left:30px;">
 	                        <span class="input-group-addon"><i class="glyphicon red"></i></span>
-	                        <input type="text" class="form-control" id="exampleInputPassword1" placeholder="文章标题" name="article_title">
+	                        <input type="text" style="width:450px;" class="form-control" id="exampleInputPassword1" placeholder="文章标题" name="article_title">
 	                    </div>
 	                    <div class="clearfix"></div><br>
-		                <div class="input-group input-group-lg">
+		                <div class="input-group input-group-lg" style="margin-left:30px;">
 	                        <span class="input-group-addon"><i class="glyphicon red"></i></span>
-	                        <textarea id="myEditor" style="width:700px;height:240px;" name="article_content">
-								请输入博文内容
+	                        <textarea id="myEditor" style="width:780px;height:240px;" name="article_content">
+								
 							</textarea>
 	                    </div>
 	                    <div class="clearfix"></div><br>
-	                    <p class=" col-md-5">
-	                        <button type="submit" class="btn btn-primary" style="width:306px;">添加</button>
+	                    <p class=" col-md-5" style="margin-left:17px;">
+	                        <button type="submit" class="btn btn-primary" style="width:306px;">发布</button>
 	                    </p><br/><br/><br/><br/>
 	                </fieldset>
 	            </form>
