@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>博文列表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Charisma, a fully featured, responsive, HTML5, Bootstrap admin template.">
+    <meta name="author" content="Muhammad Usman">
+
+	<!-- The styles -->
+    <link id="bs-css" href="/public/charisma/css/bootstrap-cerulean.min.css" rel="stylesheet">
+    <link href="/public/charisma/css/charisma-app.css" rel="stylesheet">
+    <link href='/public/charisma/bower_components/fullcalendar/dist/fullcalendar.css' rel='stylesheet'>
+    <link href='/public/charisma/bower_components/fullcalendar/dist/fullcalendar.print.css' rel='stylesheet' media='print'>
+    <link href='/public/charisma/bower_components/chosen/chosen.min.css' rel='stylesheet'>
+    <link href='/public/charisma/bower_components/colorbox/example3/colorbox.css' rel='stylesheet'>
+    <link href='/public/charisma/bower_components/responsive-tables/responsive-tables.css' rel='stylesheet'>
+    <link href='/public/charisma/bower_components/bootstrap-tour/build/css/bootstrap-tour.min.css' rel='stylesheet'>
+    <link href='/public/charisma/css/jquery.noty.css' rel='stylesheet'>
+    <link href='/public/charisma/css/noty_theme_default.css' rel='stylesheet'>
+    <link href='/public/charisma/css/elfinder.min.css' rel='stylesheet'>
+    <link href='/public/charisma/css/elfinder.theme.css' rel='stylesheet'>
+    <link href='/public/charisma/css/jquery.iphone.toggle.css' rel='stylesheet'>
+    <link href='/public/charisma/css/uploadify.css' rel='stylesheet'>
+    <link href='/public/charisma/css/animate.min.css' rel='stylesheet'>
+
+    <!-- jQuery -->
+    <script src="/public/charisma/bower_components/jquery/jquery.min.js"></script>
+
+    <!-- The fav icon -->
+    <link rel="shortcut icon" href="/public/charisma/img/favicon.ico">
+
+</head>
+
+<body>
+
+   <div class="navbar navbar-default" role="navigation">
+
+        <div class="navbar-inner">
+            <button type="button" class="navbar-toggle pull-left animated flip">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="index.html"> <img alt="Charisma Logo" src="/public/charisma/img/logo20.png" class="hidden-xs"/>
+                <span>博客管理系统</span></a>
+
+            <!-- user dropdown starts -->
+            <div class="btn-group pull-right">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <i class="glyphicon glyphicon-user"></i><span class="hidden-sm hidden-xs"> 管理员</span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">我的资料</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/logout">退出</a></li>
+                </ul>
+            </div>
+            <!-- user dropdown ends -->
+
+            <!-- theme selector starts -->
+            <div class="btn-group pull-right theme-container animated tada">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <i class="glyphicon glyphicon-tint"></i><span
+                        class="hidden-sm hidden-xs"> 切换主题 / 皮肤</span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" id="themes">
+                    <li><a data-value="classic" href="#"><i class="whitespace"></i> 典型</a></li>
+                    <li><a data-value="cerulean" href="#"><i class="whitespace"></i> 天蓝色</a></li>
+                    <li><a data-value="cyborg" href="#"><i class="whitespace"></i> 黑白色</a></li>
+                    <li><a data-value="simplex" href="#"><i class="whitespace"></i> 白红色</a></li>
+                    <li><a data-value="darkly" href="#"><i class="whitespace"></i>蓝黑色</a></li>
+                    <li><a data-value="lumen" href="#"><i class="whitespace"></i> 白蓝色</a></li>
+                    <li><a data-value="slate" href="#"><i class="whitespace"></i> 灰白色</a></li>
+                    <li><a data-value="spacelab" href="#"><i class="whitespace"></i> 灰蓝色</a></li>
+                    <li><a data-value="united" href="#"><i class="whitespace"></i> 桔黄色</a></li>
+                </ul>
+            </div>
+            <!-- theme selector ends -->
+
+            <ul class="collapse navbar-collapse nav navbar-nav top-menu">
+                <li><a href="https://github.com/ruansheng" target="_blank"><i class="glyphicon glyphicon-globe"></i> 首页</a></li>
+                <li class="dropdown">
+                    <a href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-star"></i> 友情链接 <span
+                            class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="https://github.com/ruansheng" target="_blank">github</a></li>
+                        <li class="divider"></li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+    
+    <!-- topbar ends -->
+<div class="ch-container">
+    <div class="row">
+        
+        <!-- left menu starts -->
+       <div class="col-sm-2 col-lg-2">
+            <div class="sidebar-nav">
+                <div class="nav-canvas">
+                    <div class="nav-sm nav nav-stacked">
+
+                    </div>
+                    <ul class="nav nav-pills nav-stacked main-menu">
+                        <li class="nav-header">菜单</li>
+                        <li><a class="ajax-link" href="/Manage/Index/index"><i class="glyphicon glyphicon-home"></i><span> 主面板</span></a>
+                        </li>
+                        <li class="accordion">
+                            <a href="#"><i class="glyphicon glyphicon-list"></i><span> 博文管理</span></a>
+                            <ul class="nav nav-pills nav-stacked">
+                            	   <li><a href="/addArticle">发布博文</a></li>
+                                <li><a href="/articleList">博文列表</a></li>
+                            </ul>
+                        </li>
+                        <li class="accordion">
+                            <a href="#"><i class="glyphicon glyphicon-globe"></i><span> 管理员管理</span></a>
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="/Manage/Manager/addManager">添加管理员</a></li>
+                                <li><a href="/Manage/Manager/managerList">管理员列表</a></li>
+                            </ul>
+                        </li>
+                        <li class="accordion">
+                            <a href="#"><i class="glyphicon glyphicon-cog"></i><span> 系统设置</span></a>
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="/Manage/Manager/updatePassword">修改密码</a></li>
+                                <li><a href="https://github.com/ruansheng" target="_blank">github</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+</div>
+        <!-- left menu ends -->
+
+        <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+                <div>
+         <ul class="breadcrumb">
+            <li>
+                <a href="#">博文管理</a>
+            </li>
+            <li>
+                <a href="#">博文列表</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+    <div class="box col-md-12">
+    <div class="box-inner">
+    <div class="box-header well" data-original-title="">
+        <h2><i class="glyphicon glyphicon-tags"></i> 博文列表</h2>
+        <div class="box-icon">
+            <a href="#" class="btn btn-setting btn-round btn-default"><i class="glyphicon glyphicon-cog"></i></a>
+            <a href="#" class="btn btn-minimize btn-round btn-default"><i
+                    class="glyphicon glyphicon-chevron-up"></i></a>
+        </div>
+    </div>
+    <div class="box-content">
+    <span class="label-warning label label-default">博文总数 : </span>
+    <span class="label-warning label label-default">每页显示50条</span>
+    <span class="label-warning label label-default">总共页</span>
+    <br/><br/>
+    <br/>
+    <table class="table table-striped table-bordered bootstrap-datatable  responsive">
+	    <thead>
+		    <tr>
+		        <th style="text-align:center;">id</th>
+		        <th style="text-align:center;">博文标题</th>
+		        <th style="text-align:center;">浏览量</th>
+		        <th style="text-align:center;">创建时间</th>
+		        <th style="text-align:center;">更新时间</th>
+		        <th style="text-align:center;">操作</th>
+		    </tr>
+	    </thead>
+	    <tbody>
+				  {{range $k,$v:=.}} 
+				    <tr>
+				        <td style="width:40px;overfoow:hidden;">{{$v.article_id}}</td>
+				        <td class="center" style="width:300px;overfoow:hidden;">{{$v.title}}</td>
+				        <td class="center" style="width:40px;overflow:hidden;">{{$v.show_num}}</td>
+				        <td class="center" style="width:50px;overfoow:hidden;">{{$v.create_time}}</td>
+				        <td class="center" style="width:50px;overfoow:hidden;">{{$v.create_time}}</td>
+				        <td class="center" style="width:50px;overflow:hidden;">删除</td>
+				    </tr>
+				   {{end}}
+    		</tbody>
+    </table>
+    
+    </div>
+    </div>
+    </div>
+
+    </div><!--/row-->
+
+    <!-- content ends -->
+    </div><!--/#content.col-md-0-->
+</div><!--/fluid-row-->
+
+    <hr>
+
+    <footer class="row">
+        <p class="col-md-9 col-sm-9 col-xs-12 copyright">&copy; <a href="https://github.com/ruansheng" target="_blank">ruansheng
+                </a> 2010 - 2014</p>
+
+        <p class="col-md-3 col-sm-3 col-xs-12 powered-by">技术支持: <a
+                href="https://github.com" target="_blank">ruansheng</a></p>
+	</footer>
+
+</div><!--/.fluid-container-->
+
+<script src="/public/charisma/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+<!-- library for cookie management -->
+<script src="/public/charisma/js/jquery.cookie.js"></script>
+<!-- calender plugin -->
+<script src='/public/charisma/bower_components/moment/min/moment.min.js'></script>
+<script src='/public/charisma/bower_components/fullcalendar/dist/fullcalendar.min.js'></script>
+<!-- data table plugin -->
+<script src='/public/charisma/js/jquery.dataTables.min.js'></script>
+
+<!-- select or dropdown enhancer -->
+<script src="/public/charisma/bower_components/chosen/chosen.jquery.min.js"></script>
+<!-- plugin for gallery image view -->
+<script src="/public/charisma/bower_components/colorbox/jquery.colorbox-min.js"></script>
+<!-- notification plugin -->
+<script src="/public/charisma/js/jquery.noty.js"></script>
+<!-- library for making tables responsive -->
+<script src="/public/charisma/bower_components/responsive-tables/responsive-tables.js"></script>
+<!-- tour plugin -->
+<script src="/public/charisma/bower_components/bootstrap-tour/build/js/bootstrap-tour.min.js"></script>
+<!-- star rating plugin -->
+<script src="/public/charisma/js/jquery.raty.min.js"></script>
+<!-- for iOS style toggle switch -->
+<script src="/public/charisma/js/jquery.iphone.toggle.js"></script>
+<!-- autogrowing textarea plugin -->
+<script src="/public/charisma/js/jquery.autogrow-textarea.js"></script>
+<!-- multiple file upload plugin -->
+<script src="/public/charisma/js/jquery.uploadify-3.1.min.js"></script>
+<!-- history.js for cross-browser state change on ajax -->
+<script src="/public/charisma/js/jquery.history.js"></script>
+<!-- application script for Charisma demo -->
+<script src="/public/charisma/js/charisma.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$('.current').parent('div').children().addClass('btn btn-default');
+		$('.current').parent('div').children('.current').addClass('btn-success');
+
+		$('.removeTag').on('click',function(){
+			if(confirm("确定要删除?")){
+				var url="/Manage/IQLevel/delIQLevel/";
+				var iid=$(this).attr('iid');
+				$.post(url,{'iid':iid},function(data){
+					var json=eval("("+data+")");
+					if(json.status==-1){
+						alert(json.msg);
+					}else{
+						alert(json.msg);
+						location.reload(); 
+					}
+				});
+			}
+		});
+	});
+	
+	
+</script>
+</body>
+</html>

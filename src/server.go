@@ -359,6 +359,50 @@ func doAddArticle(w http.ResponseWriter,r *http.Request){
 }
 
 /**
+* 管理后台博文列表
+*/
+func articleList(w http.ResponseWriter,r *http.Request){
+	r.ParseForm()
+	urlRow,err:=r.Form["page"]
+	var page string
+	if err!=true {
+		page="1"
+	}else{
+		page=urlRow[0]
+	}
+	
+	intPage,_:=strconv.Atoi(page)
+	limit:=strconv.Itoa((intPage-1)*20)+",20"
+	
+	var sql string="select article_id,title,content,create_time,show_num from article limit "+limit
+    
+    conn:=new(Mysql)
+	 
+	rows:=conn.connect("blog").selectSql(sql)
+	var article_id string 
+    var title string
+    var content string
+    var create_time string
+    var show_num string
+    
+    list:=make([]map[string]interface{},0,20)
+	for rows.Next() { 
+        rerr := rows.Scan(&article_id, &title,&content,&create_time,&show_num)
+        if rerr == nil {
+        		item:=make(map[string]interface{})
+        		item["article_id"]=article_id
+        		item["title"]=title
+        		item["content"]=content
+        		item["create_time"]=create_time
+        		item["show_num"]=show_num
+           	list=append(list,item)
+        }
+    }
+	t,_ :=template.ParseFiles("admin/articleList.html")
+	t.Execute(w,list)
+}
+
+/**
 * 获取验证码
 */
 func getImageCode(w http.ResponseWriter,r *http.Request){
@@ -465,6 +509,7 @@ func main(){
 	http.HandleFunc("/admin",admin)
 	http.HandleFunc("/addArticle",addArticle)
 	http.HandleFunc("/doAddArticle",doAddArticle)
+	http.HandleFunc("/articleList",articleList)
 	http.HandleFunc("/logout",logout)
 	
 	/*Api*/
