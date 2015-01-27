@@ -403,6 +403,35 @@ func articleList(w http.ResponseWriter,r *http.Request){
 }
 
 /**
+* 修改文章内容
+*/
+func editArticle(w http.ResponseWriter,r *http.Request){
+	r.ParseForm()
+	id:=r.Form["article_id"][0]
+	conn:=new(Mysql)
+	var sql string="select article_id,title,content,create_time,show_num from article where article_id="+id+" limit 1"
+	rows:=conn.connect("blog").selectSql(sql)
+	var article_id string 
+    var title string
+    var content string
+    var create_time string
+    var show_num string
+    articleInfo:=make(map[string]interface{})
+    for rows.Next() { 
+        rerr := rows.Scan(&article_id, &title,&content,&create_time,&show_num)
+        if rerr == nil {
+			articleInfo["article_id"]=article_id
+        		articleInfo["title"]=title
+        		articleInfo["content"]=content
+        		articleInfo["create_time"]=create_time
+        		articleInfo["show_num"]=show_num
+        }
+    }
+	t,_ :=template.ParseFiles("admin/editArticle.html")
+	t.Execute(w,articleInfo)
+}
+
+/**
 * 获取验证码
 */
 func getImageCode(w http.ResponseWriter,r *http.Request){
@@ -510,6 +539,7 @@ func main(){
 	http.HandleFunc("/addArticle",addArticle)
 	http.HandleFunc("/doAddArticle",doAddArticle)
 	http.HandleFunc("/articleList",articleList)
+	http.HandleFunc("/editArticle",editArticle)
 	http.HandleFunc("/logout",logout)
 	
 	/*Api*/
