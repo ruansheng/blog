@@ -57,7 +57,7 @@ type Mysql struct {
 */
 func (mysqlClass * Mysql) initVar(){
 	if mysqlClass.host==""{
-		mysqlClass.host="localhost"
+		mysqlClass.host="127.0.0.1"
 	}
 	if mysqlClass.port==""{
 		mysqlClass.port="3306"
